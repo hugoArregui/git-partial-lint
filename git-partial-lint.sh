@@ -40,7 +40,7 @@ if [ $? -eq 0 ]; then
     cat $BLAME | grep "^00000000" | awk -F\  '{print $3}' | grep "^$LINENUM)" > /dev/null
     R=$?
     if [ $R -eq 0 ]; then
-      print_output $line
+      print_output "$line"
     elif [ $R -eq 2 ]; then #error
       echo "ERROR in grep"
     fi

@@ -10,7 +10,7 @@ function extract_error_linenum() {
 }
 
 function print_output() {
-  LINE=$*
+  LINE=$1
   WHERE=`echo $LINE | cut -d ' ' -f1`
   TYPE=`echo $LINE | cut -d ' ' -f2`
   DESC=`echo $LINE | cut -d ' ' -f3-`
