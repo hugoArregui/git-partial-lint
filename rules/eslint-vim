@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# eslint rule file for vim, compatible with this errorformat:
+# let errorformat = 
+#   \'%l:%c %tarning %m, ' .
+#   \'%l:%c %trror %m'
+
+function run() {
+  eslint $1 | tail -n +3 | head -n -3 > $2
+  return $?
+}
+
+function extract_error_linenum() {
+  LINENUM=`echo $1 | cut -d: -f 1`
+}
+
+function print_output() {
+  LINE=$1
+  WHERE=`echo $LINE | cut -d ' ' -f1`
+  TYPE=`echo $LINE | cut -d ' ' -f2`
+  DESC=`echo $LINE | cut -d ' ' -f3-`
+  ERR=`echo $DESC | rev | cut -d\  -f1 | rev`
+  DESC=`echo $DESC | rev | cut -d\  -f2- | rev`
+  printf "%s %s %s (%s)\n" "$WHERE" "$TYPE" "$DESC" "$ERR"
+}
+
+
