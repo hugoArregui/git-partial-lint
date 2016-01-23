@@ -1,7 +1,9 @@
 from subprocess import run, PIPE
 
+
 class LinterNotFound(RuntimeError):
     pass
+
 
 class Eslint:
     name = 'eslint'
@@ -12,7 +14,7 @@ class Eslint:
         return out[2:-3]
 
     def error_linenum(self, error):
-        return error.split(':')[0]
+        return int(error.split(':')[0])
 
     def format_error(self, error):
         fields = [f.strip() for f in error.split(':')]
@@ -21,7 +23,25 @@ class Eslint:
         err = fields[-1]
         return "{:>8s} {:>7s} {:>50s} {:s}".format(where, type, desc, err)
 
-linters = [Eslint()]
+
+class Flake8:
+    name = 'flake8'
+
+    def run(self, f):
+        return run(["flake8", f],
+                   stdout=PIPE).stdout.decode('utf-8').splitlines()
+
+    def error_linenum(self, error):
+        return int(error.split(':')[1])
+
+    def format_error(self, error):
+        fields = [f.strip() for f in error.split(':')]
+        where = "{:s}:{:s}".format(fields[1], fields[2])
+        err = fields[-1]
+        return "{:>8s} {:s}".format(where, err)
+
+linters = [Eslint(), Flake8()]
+
 
 def find_linter(name):
     for linter in linters:
