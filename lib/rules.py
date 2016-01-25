@@ -32,8 +32,9 @@ class Rule:
             'desc': desc
         }
 
-    def format_error(self, error):
-        return self.fmt.format(**error)
+    def format_error(self, error, fmt=None):
+        r = fmt or self.fmt
+        return r.format(**error)
 
 
 class Eslint(Rule):
