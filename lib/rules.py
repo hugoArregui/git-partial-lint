@@ -40,7 +40,27 @@ class Flake8:
         err = fields[-1]
         return "{:>8s} {:s}".format(where, err)
 
-linters = [Eslint(), Flake8()]
+
+class Rubocop:
+    name = 'rubocop'
+
+    def run(self, f):
+        out = run(['rubocop', '-f', 's', f],
+                   stdout=PIPE).stdout.decode('utf-8').splitlines()
+        return out[1:-2] if len(out) > 3 else []
+
+    def error_linenum(self, error):
+        return int(error.split(':')[1])
+
+    def format_error(self, error):
+        fields = [f.strip() for f in error.split(':')]
+        where = "{:s}:{:s}".format(fields[1], fields[2])
+        type = fields[0]
+        err = fields[-1]
+        return "{:>8s} [{:s}] {:s}".format(where, type, err)
+
+
+linters = [Eslint(), Flake8(), Rubocop()]
 
 
 def find_linter(name):
