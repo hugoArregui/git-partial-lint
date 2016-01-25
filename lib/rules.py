@@ -5,74 +5,95 @@ class LinterNotFound(RuntimeError):
     pass
 
 
-class Eslint:
-    name = 'eslint'
+class Rule:
+
+    def __init__(self, name, fmt):
+        self.name = name
+        self.fmt = fmt
 
     def run(self, f):
-        out = run(["eslint", f],
-                  stdout=PIPE).stdout.decode('utf-8').splitlines()
+        raise NotImplementedError
+
+    def _run(self, cmd):
+        return run(cmd, stdout=PIPE).stdout.decode('utf-8').splitlines()
+
+    def _make_error(self, f, linenum, *, colnum=None, type=None, err=None,
+                    desc=None):
+        where = str(linenum)
+        if colnum:
+            where += ':' + str(colnum)
+        return {
+            'file': f,
+            'linenum': linenum,
+            'colnum': colnum,
+            'type': type,
+            'err': err,
+            'where': where,
+            'desc': desc
+        }
+
+    def format_error(self, error):
+        return self.fmt.format(**error)
+
+
+class Eslint(Rule):
+    name = 'eslint'
+    fmt = "{where:>8} {type:>7} {desc:>50} {err}"
+
+    def __init__(self):
+        Rule.__init__(self, Eslint.name, Eslint.fmt)
+
+    def run(self, f):
+        out = self._run(["eslint", f])
         r = []
         if len(out) > 5:
             for line in out[2:-3]:
                 fields = [f.strip() for f in line.split(':')]
-                r.append({
-                    'file': f,
-                    'linenum': int(fields[0]),
-                    'type': fields[1],
-                    'err': fields[-1],
-                    'where': "{:s}".format(fields[0]),
-                    'desc': " ".join(fields[2:-1])
-                })
+                linenum = int(fields[0])
+                r.append(self._make_error(f, linenum,
+                                          type=fields[1],
+                                          err=fields[-1],
+                                          desc=" ".join(fields[2:-1])))
         return r
 
-    def format_error(self, error):
-        return "{where:>8} {type:>7} {desc:>50} {err}".format(**error)
 
-
-class Flake8:
+class Flake8(Rule):
     name = 'flake8'
+    fmt = '{where:>8} {err}'
+
+    def __init__(self):
+        Rule.__init__(self, Flake8.name, Flake8.fmt)
 
     def run(self, f):
-        out = run(["flake8", f],
-                  stdout=PIPE).stdout.decode('utf-8').splitlines()
+        out = self._run(["flake8", f])
         r = []
         for line in out:
             fields = [f.strip() for f in line.split(':')]
-            r.append({
-                'file': f,
-                'linenum': int(fields[1]),
-                'colnum': int(fields[2]),
-                'err': fields[-1],
-                'where': "{:s}:{:s}".format(fields[1], fields[2])
-            })
+            linenum, colnum = map(int, fields[1:3])
+            r.append(self._make_error(f, linenum, colnum=colnum,
+                                      err=fields[-1]))
         return r
 
-    def format_error(self, error):
-        return "{where:>8} {err}".format(**error)
 
-
-class Rubocop:
+class Rubocop(Rule):
     name = 'rubocop'
+    fmt = "{where:>8} [{type}] {err}"
+
+    def __init__(self):
+        Rule.__init__(self, Rubocop.name, Rubocop.fmt)
 
     def run(self, f):
-        out = run(['rubocop', '-f', 's', f],
-                  stdout=PIPE).stdout.decode('utf-8').splitlines()
+        out = self._run(['rubocop', '-f', 's', f])
         r = []
         if len(out) > 3:
             for line in out[1:-2]:
                 fields = [f.strip() for f in line.split(':')]
-                r.append({
-                    'file': f,
-                    'type': fields[0],
-                    'linenum': int(fields[1]),
-                    'colnum': int(fields[2]),
-                    'err': fields[-1],
-                    'where': "{:s}:{:s}".format(fields[1], fields[2])
-                })
+                linenum, colnum = map(int, fields[1:3])
+                r.append(self._make_error(f, linenum,
+                                          type=fields[0],
+                                          colnum=colnum,
+                                          err=fields[-1]))
         return r
-
-    def format_error(self, error):
-        return "{where:>8} [{type}] {err}".format(**error)
 
 
 linters = [Eslint(), Flake8(), Rubocop()]
