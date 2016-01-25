@@ -2,6 +2,8 @@
 
 import argparse
 
+from os import path
+
 from lib.git import GitInterface
 from lib.rules import find_linter, LinterNotFound
 
@@ -28,9 +30,14 @@ def main():
     args = argparser.parse_args()
     try:
         linter = find_linter(args.rule)
+        f = args.filename
+        if not path.exists(f):
+            raise IOError
         out = run_linter(linter, args.filename)
         for l in out:
             print(l)
+    except IOError:
+        print('file not found')
     except LinterNotFound:
         print("No linter found")
 
