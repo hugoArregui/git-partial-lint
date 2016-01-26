@@ -15,7 +15,7 @@ def main():
     argparser.add_argument('--format', action='store', help='format')
     argparser.add_argument('rule', action='store', help='rule name')
     argparser.add_argument('files', action='store', metavar='file', nargs='+',
-                           help='file')
+                           help='file or wildcard')
     args = argparser.parse_args()
     try:
         linter = find_linter(args.rule)
