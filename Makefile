@@ -3,3 +3,9 @@ lint:
 
 test:
 	python -m unittest
+
+coverage:
+	rm -rf .coverage htmlcov
+	coverage run -m unittest
+	coverage html
+

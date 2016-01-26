@@ -6,7 +6,7 @@ from itertools import chain
 
 from lib.git import GitCmdInterface
 from lib.rules import find_linter, LinterNotFound
-from lib.partial_lint import run_partial_lint
+from lib.partial_lint import PartialLint
 
 
 def main():
@@ -21,7 +21,7 @@ def main():
         linter = find_linter(args.rule)
         git = GitCmdInterface()
         files = set(chain(*[iglob(f) for f in args.files]))
-        out = run_partial_lint(git, linter, files, fmt=args.format)
+        out = PartialLint(git, linter).run(files, fmt=args.format)
         for l in out:
             print(l)
     except IOError:
