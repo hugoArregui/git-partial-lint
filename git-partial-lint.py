@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import argparse
+from glob import iglob
+from itertools import chain
 
 from lib.git import GitCmdInterface
 from lib.rules import find_linter, LinterNotFound
@@ -12,12 +14,14 @@ def main():
         description='run linter only on the repo current changes')
     argparser.add_argument('--format', action='store', help='format')
     argparser.add_argument('rule', action='store', help='rule name')
-    argparser.add_argument('filename', action='store', help='filename')
+    argparser.add_argument('files', action='store', metavar='file', nargs='+',
+                           help='file or wildcard')
     args = argparser.parse_args()
     try:
         linter = find_linter(args.rule)
         git = GitCmdInterface()
-        out = run_partial_lint(git, linter, args.filename, fmt=args.format)
+        files = set(chain(*[iglob(f) for f in args.files]))
+        out = run_partial_lint(git, linter, files, fmt=args.format)
         for l in out:
             print(l)
     except IOError:
