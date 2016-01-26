@@ -11,7 +11,6 @@ def run_partial_lint(git, linter, fs, fmt=None):
             r = blames[f] = git.blame_file(f) if not is_new_file else None
         else:
             r = blames[f]
-        print(r.keys())
         return r is None or error['linenum'] in r
 
     out = []
@@ -20,7 +19,6 @@ def run_partial_lint(git, linter, fs, fmt=None):
             raise IOError
 
         for error in linter.run(f):
-            print(error)
             if is_relevant(f, error):
                 s = linter.format_error(error, fmt=fmt)
                 if len(fs) > 1:
