@@ -5,7 +5,7 @@ class FileNotInGit(RuntimeError):
     pass
 
 
-class GitInterface:
+class GitCmdInterface:
 
     def current_brach(self):
         return self._r(['rev-parse', '--abbrev-ref', 'HEAD'])
