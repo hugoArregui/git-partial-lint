@@ -20,6 +20,9 @@ class GitCmdInterface:
             for line in lines
             if not only_new_lines or line.startswith('00000000')}
 
+    def modified_files(self):
+        return {f.split()[-1] for f in self._r(['status', '-s']).splitlines()}
+
     def is_file_in_git(self, branch, f):
         return self.is_in_git("{:s}:{:s}".format(branch, f))
 
