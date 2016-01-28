@@ -11,9 +11,12 @@ class PartialLint:
 
     def run(self, fs, fmt=None):
         out = []
-        for f in set(fs) & self.git.modified_files():
+        modified_files = self.git.modified_files()
+        for f in fs:
             if not self._file_exists(f):
                 raise IOError
+            if f not in modified_files:
+                continue
 
             for error in self.linter.run(f):
                 if self._is_relevant(error):

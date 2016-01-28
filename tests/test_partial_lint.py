@@ -17,6 +17,17 @@ class PartialLintTest(unittest.TestCase):
         pl._file_exists = MagicMock(return_value=False)
         self.assertRaises(IOError, pl.run, ['lakdsjlkaj23123.rb'])
 
+    def test_skip_unmodified_file(self):
+        f = 'main.js'
+        self.git.modified_files = MagicMock(return_value={})
+        self.git.is_file_in_git = MagicMock(return_value=False)
+
+        pl = PartialLint(self.git, self.linter)
+        pl._file_exists = MagicMock(return_value=True)
+        out = pl.run([f])
+        self.assertEqual(len(out), 0)
+        self.linter.run.assert_not_called()
+
     def test_error_on_unversioned_file(self):
         f = 'main.js'
         errors = [{
@@ -25,6 +36,7 @@ class PartialLintTest(unittest.TestCase):
         }]
 
         self.linter.run = MagicMock(return_value=errors)
+        self.git.modified_files = MagicMock(return_value={f})
         self.git.is_file_in_git = MagicMock(return_value=False)
 
         pl = PartialLint(self.git, self.linter)
@@ -40,6 +52,7 @@ class PartialLintTest(unittest.TestCase):
         }]
 
         self.linter.run = MagicMock(return_value=errors)
+        self.git.modified_files = MagicMock(return_value={f})
         self.git.is_file_in_git = MagicMock(return_value=True)
         self.git.blame_file = MagicMock(return_value={10: MagicMock()})
 
