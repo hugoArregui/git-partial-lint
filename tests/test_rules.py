@@ -1,7 +1,45 @@
 import unittest
 from unittest.mock import MagicMock
 
+from lib.rules import Rule
 from lib.rules import Flake8, Rubocop, Eslint, find_linter, LinterNotFound
+
+
+class RuleTest(unittest.TestCase):
+
+    class FakeRule(Rule):
+
+        def reset():
+            RuleTest.FakeRule.fmt = '{error}'
+            RuleTest.FakeRule.name = 'fake'
+
+    def setUp(self):
+        self.FakeRule.reset()
+
+    def test_fmt_single_file(self):
+        error = 'there is an error'
+        r = self.FakeRule()
+        self.assertEqual(r.format_error(dict(error=error), False), error)
+        self.assertEqual(r.fmt, self.FakeRule.fmt)
+        self.assertEqual(r.name, self.FakeRule.name)
+
+    def test_fmt_multiple_files(self):
+        f = 'afile'
+        error = 'there is an error'
+        r = self.FakeRule()
+        self.assertEqual(r.format_error(dict(error=error, file=f), True),
+                         f + ': ' + error)
+        self.assertEqual(r.fmt, self.FakeRule.fmt)
+        self.assertEqual(r.name, self.FakeRule.name)
+
+    def test_custom_fmt(self):
+        linenum = 2
+        self.FakeRule.fmt = '{linenum}'
+        r = self.FakeRule()
+        self.assertEqual(r.format_error(dict(linenum=linenum), False),
+                         str(linenum))
+        self.assertEqual(r.fmt, self.FakeRule.fmt)
+        self.assertEqual(r.name, self.FakeRule.name)
 
 
 class Flake8Test(unittest.TestCase):
