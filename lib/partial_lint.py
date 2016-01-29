@@ -20,9 +20,7 @@ class PartialLint:
 
             for error in self.linter.run(f):
                 if self._is_relevant(error):
-                    s = self.linter.format_error(error, fmt=fmt)
-                    if len(fs) > 1:
-                        s = f + ':' + s
+                    s = self.linter.format_error(error, len(fs) > 1, fmt=fmt)
                     out.append(s)
         return out
 

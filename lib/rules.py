@@ -32,8 +32,9 @@ class Rule:
             'desc': desc
         }
 
-    def format_error(self, error, fmt=None):
-        r = fmt or self.fmt
+    def format_error(self, error, multiple_files, fmt=None):
+        r = '{file}: ' if multiple_files else ''
+        r += fmt or self.fmt
         return r.format(**error)
 
 
