@@ -47,11 +47,12 @@ class Eslint(Rule):
     def run(self, f):
         out = self._run(["eslint", f])
         r = []
-        if len(out) > 5:
-            for line in out[2:-3]:
-                fields = [f.strip() for f in line.split(':')]
-                linenum = int(fields[0])
+        if len(out) > 0:  # TODO: revisar el output cuando no hay errores
+            for line in out[1:-2]:
+                fields = [f.strip() for f in line.split()]
+                linenum, colnum = map(int, fields[0].split(':'))
                 r.append(self._make_error(f, linenum,
+                                          colnum=colnum,
                                           type=fields[1],
                                           err=fields[-1],
                                           desc=" ".join(fields[2:-1])))
@@ -100,7 +101,7 @@ class Rubocop(Rule):
 linters = [Eslint(), Flake8(), Rubocop()]
 
 
-def find_linter(name):
+def find_linter(name, linters=linters):
     for linter in linters:
         if linter.name == name:
             return linter

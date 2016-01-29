@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock
 
-from lib.rules import Flake8, Rubocop
+from lib.rules import Flake8, Rubocop, Eslint, find_linter, LinterNotFound
 
 
 class Flake8Test(unittest.TestCase):
@@ -91,6 +91,53 @@ class RubocopTest(unittest.TestCase):
     def _run_with_output(self, rule, f, output):
         rule._run = MagicMock(return_value=output)
         return rule, rule.run(f)
+
+
+class EslintTest(unittest.TestCase):
+
+    target = 'some.js'
+
+    out = [
+        target,
+        "10:53  warning  Infix operators must be spaced   space-infix-ops",
+        "",
+        "✖ 139 problems (11 errors, 128 warnings)"
+    ]
+
+    error10 = {
+        'file': target,
+        'linenum': 10,
+        'colnum': 53,
+        'err': 'space-infix-ops',
+        'where': '10:53',
+        'desc': "Infix operators must be spaced",
+        'type': 'warning'
+    }
+
+    def test_no_error(self):
+        rule, r = self._run_with_output(Eslint(), self.target, [])
+        self.assertEqual(r, [])
+
+    def test_errors(self):
+        rule, r = self._run_with_output(Eslint(), self.target, self.out)
+        self.assertEqual(r[0], self.error10)
+
+    def _run_with_output(self, rule, f, output):
+        rule._run = MagicMock(return_value=output)
+        return rule, rule.run(f)
+
+
+class TestFindRules(unittest.TestCase):
+
+    def test_linter_found(self):
+        name = 'alinter'
+        linter = MagicMock()
+        linter.name = name
+        self.assertEqual(find_linter(name, [linter]), linter)
+
+    def test_linter_not_found(self):
+        name = 'alinter'
+        self.assertRaises(LinterNotFound, find_linter, name, [])
 
 if __name__ == '__main__':
     unittest.main()
