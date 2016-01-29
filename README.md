@@ -17,3 +17,6 @@ optional arguments:
 -h, --help       show this help message and exit
 --format FORMAT  format
 ```
+#Customization
+
+## Use Rules static variables (fmt, flags)

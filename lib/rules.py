@@ -7,9 +7,10 @@ class LinterNotFound(RuntimeError):
 
 class Rule:
 
-    def __init__(self, name, fmt):
-        self.name = name
-        self.fmt = fmt
+    def __init__(self):
+        self.name = type(self).name
+        self.fmt = type(self).fmt
+        self.flags = getattr(type(self), 'flags', [])
 
     def run(self, f):
         raise NotImplementedError
@@ -37,16 +38,16 @@ class Rule:
         r += fmt or self.fmt
         return r.format(**error)
 
+    def _lint(self, executable, f):
+        return self._run([executable] + self.flags + [f])
+
 
 class Eslint(Rule):
     name = 'eslint'
     fmt = "{where:>8} {type:>7} {desc:>50} {err}"
 
-    def __init__(self):
-        Rule.__init__(self, Eslint.name, Eslint.fmt)
-
     def run(self, f):
-        out = self._run(["eslint", f])
+        out = self._lint('eslint', f)
         r = []
         if len(out) > 0:  # TODO: revisar el output cuando no hay errores
             for line in out[1:-2]:
@@ -64,11 +65,8 @@ class Flake8(Rule):
     name = 'flake8'
     fmt = '{where:>8} {err}'
 
-    def __init__(self):
-        Rule.__init__(self, Flake8.name, Flake8.fmt)
-
     def run(self, f):
-        out = self._run(["flake8", f])
+        out = self._lint('flake8', f)
         r = []
         for line in out:
             fields = [f.strip() for f in line.split(':')]
@@ -81,12 +79,10 @@ class Flake8(Rule):
 class Rubocop(Rule):
     name = 'rubocop'
     fmt = "{where:>8} [{type}] {err}"
-
-    def __init__(self):
-        Rule.__init__(self, Rubocop.name, Rubocop.fmt)
+    flags = ['-f', 's']
 
     def run(self, f):
-        out = self._run(['rubocop', '-f', 's', f])
+        out = self._lint('rubocop', f)
         r = []
         if len(out) > 3:
             for line in out[1:-2]:
