@@ -1,5 +1,7 @@
 #Git-partial-lint
 
+[![Build Status](https://travis-ci.org/hugoArregui/git-partial-lint.png)](https://travis-ci.org/hugoArregui/git-partial-lint.)
+
 Run your preferred linter only on your current changes!
 
 ## Table of Contents
