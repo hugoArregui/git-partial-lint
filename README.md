@@ -19,4 +19,5 @@ optional arguments:
 ```
 #Customization
 
-## Use Rules static variables (fmt, flags)
+- Use Rules static variables (fmt, flags)
+- Write your own main script, and import the pieces you would like to reuse
