@@ -49,7 +49,7 @@ class Eslint(Rule):
     def run(self, f):
         out = self._lint('eslint', f)
         r = []
-        if len(out) > 0:  # TODO: revisar el output cuando no hay errores
+        if len(out) > 3:
             for line in out[1:-2]:
                 fields = [f.strip() for f in line.split()]
                 linenum, colnum = map(int, fields[0].split(':'))
