@@ -136,10 +136,12 @@ class EslintTest(unittest.TestCase):
     target = 'some.js'
 
     out = [
+        '',
         target,
-        "10:53  warning  Infix operators must be spaced   space-infix-ops",
-        "",
-        "✖ 139 problems (11 errors, 128 warnings)"
+        '10:53  warning  Infix operators must be spaced   space-infix-ops',
+        '',
+        '✖ 139 problems (11 errors, 128 warnings)',
+        ''
     ]
 
     error10 = {

@@ -45,12 +45,13 @@ class Rule:
 class Eslint(Rule):
     name = 'eslint'
     fmt = "{where:>8} {type:>7} {desc:>50} {err}"
+    flags = ['--no-ignore']
 
     def run(self, f):
         out = self._lint('eslint', f)
         r = []
-        if len(out) > 3:
-            for line in out[1:-2]:
+        if len(out) > 5:
+            for line in out[2:-3]:
                 fields = [f.strip() for f in line.split()]
                 linenum, colnum = map(int, fields[0].split(':'))
                 r.append(self._make_error(f, linenum,
