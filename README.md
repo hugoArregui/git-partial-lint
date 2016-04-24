@@ -9,6 +9,7 @@ Run your preferred linter only on your current changes!
 - [git-partial-lint](#)
   - [Requirements](#requirements)
   - [Usage](#usage)
+  - [Supported Linters](#linters)
   - [Customization](#customization)
   - [Contributing](#contributing)
   - [License](#license)
@@ -36,6 +37,15 @@ optional arguments:
 -h, --help       show this help message and exit
 --format FORMAT  format
 ```
+
+<a name="linters"></a>
+##Supported Linters
+
+- [ESLint](http://eslint.org/)
+- [JSHint](http://jshint.com/)
+- [flake8](https://gitlab.com/pycqa/flake8)
+- [Rubocop](https://github.com/bbatsov/rubocop)
+
 <a name="customization"></a>
 ##Customization
 
@@ -47,7 +57,7 @@ your own main script, and make your changes from there.
 ##Contributing
 
 Just send me a pull request! If you add a new rule please make sure to add
-a test for it, so I don't have to install the linter you chose to use.
+a test for it, so I don't have to install the linter myself.
 
 <a name="license"></a>
 ##License

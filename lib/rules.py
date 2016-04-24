@@ -42,7 +42,7 @@ class Rule:
         return self._run([executable] + self.flags + [f])
 
 
-class Eslint(Rule):
+class ESLint(Rule):
     name = 'eslint'
     fmt = "{where:>8} {type:>7} {desc:>50} {err}"
     flags = ['--no-ignore']
@@ -59,6 +59,26 @@ class Eslint(Rule):
                                           type=fields[1],
                                           err=fields[-1],
                                           desc=" ".join(fields[2:-1])))
+        return r
+
+
+class JSHint(Rule):
+    name = 'jshint'
+    fmt = "{where:>8} {err}"
+    flags = []
+
+    def run(self, f):
+        out = self._lint('jshint', f)
+        r = []
+        if out:
+            for line in out[:-2]:
+                fields = line.split()
+                linenum = int(fields[2].strip(","))
+                colnum = int(fields[4].strip(","))
+                err = line[line.rfind(',')+1:].strip()
+                r.append(self._make_error(f, linenum,
+                                          colnum=colnum,
+                                          err=err))
         return r
 
 
@@ -96,7 +116,7 @@ class Rubocop(Rule):
         return r
 
 
-linters = [Eslint(), Flake8(), Rubocop()]
+linters = [ESLint(), Flake8(), Rubocop(), JSHint()]
 
 
 def find_linter(name, linters=linters):

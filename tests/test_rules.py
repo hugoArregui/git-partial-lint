@@ -1,8 +1,8 @@
 import unittest
 from unittest.mock import MagicMock
 
-from lib.rules import Rule
-from lib.rules import Flake8, Rubocop, Eslint, find_linter, LinterNotFound
+from lib.rules import Rule, find_linter, LinterNotFound
+from lib.rules import Flake8, Rubocop, ESLint, JSHint
 
 
 class RuleTest(unittest.TestCase):
@@ -131,7 +131,7 @@ class RubocopTest(unittest.TestCase):
         return rule, rule.run(f)
 
 
-class EslintTest(unittest.TestCase):
+class ESLintTest(unittest.TestCase):
 
     target = 'some.js'
 
@@ -155,12 +155,45 @@ class EslintTest(unittest.TestCase):
     }
 
     def test_no_error(self):
-        rule, r = self._run_with_output(Eslint(), self.target, [])
+        rule, r = self._run_with_output(ESLint(), self.target, [])
         self.assertEqual(r, [])
 
     def test_errors(self):
-        rule, r = self._run_with_output(Eslint(), self.target, self.out)
+        rule, r = self._run_with_output(ESLint(), self.target, self.out)
         self.assertEqual(r[0], self.error10)
+
+    def _run_with_output(self, rule, f, output):
+        rule._run = MagicMock(return_value=output)
+        return rule, rule.run(f)
+
+
+class JSHintTest(unittest.TestCase):
+
+    target = 'some.js'
+
+    out = [
+        'some.js: line 2, col 10, Missing semicolon.',
+        '',
+        '1 error'
+    ]
+
+    error2 = {
+        'file': target,
+        'linenum': 2,
+        'colnum': 10,
+        'where': '2:10',
+        'err': 'Missing semicolon.',
+        'desc': None,
+        'type': None
+    }
+
+    def test_no_error(self):
+        rule, r = self._run_with_output(JSHint(), self.target, [])
+        self.assertEqual(r, [])
+
+    def test_errors(self):
+        rule, r = self._run_with_output(JSHint(), self.target, self.out)
+        self.assertEqual(r[0], self.error2)
 
     def _run_with_output(self, rule, f, output):
         rule._run = MagicMock(return_value=output)
@@ -178,6 +211,7 @@ class TestFindRules(unittest.TestCase):
     def test_linter_not_found(self):
         name = 'alinter'
         self.assertRaises(LinterNotFound, find_linter, name, [])
+
 
 if __name__ == '__main__':
     unittest.main()
