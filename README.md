@@ -1,6 +1,6 @@
 #Git-partial-lint
 
-[![Build Status](https://travis-ci.org/hugoArregui/git-partial-lint.png)](https://travis-ci.org/hugoArregui/git-partial-lint.)
+[![Build Status](https://travis-ci.org/hugoArregui/git-partial-lint.png)](https://travis-ci.org/hugoArregui/git-partial-lint)
 
 Run your preferred linter only on your current changes!
 
@@ -23,6 +23,8 @@ The only requirement to run git-partial-lint is python 3.5+.
 
 <a name="usage"></a>
 ##Usage
+
+Example: `git-partial-lint.py eslint test.js`
 
 ```
 usage: git-partial-lint.py [-h] [--format FORMAT] rule file [file ...]
